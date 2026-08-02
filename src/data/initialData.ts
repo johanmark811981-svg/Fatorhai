@@ -13,6 +13,8 @@ export const DEFAULT_SETTINGS: AppSettings = {
   companyNationalAddress: 'الرياض، حي الملقا، طريق الملك فهد - رقم المبنى 4125',
   companyEmail: 'info@qualitylinks.com',
   enableSecurityLock: false,
+  enableSharedPin: true,
+  sharedPin: '1234',
   travelMode: false,
   travelCurrency: 'USD',
   exchangeRates: {

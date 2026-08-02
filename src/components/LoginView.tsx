@@ -153,7 +153,7 @@ export const LoginView: React.FC = () => {
 
   const handleSharedAccountClick = () => {
     setError('');
-    const isSharedPinActive = (data.settings.enableSharedPin !== false) && !!data.settings.sharedPin;
+    const isSharedPinActive = data.settings.enableSharedPin !== false;
     if (isSharedPinActive) {
       setShowSharedPinModal(true);
       setSharedPin('');
@@ -168,7 +168,8 @@ export const LoginView: React.FC = () => {
     if (loading) return;
     setSharedPinError('');
 
-    if (sharedPin === data.settings.sharedPin) {
+    const expectedPin = data.settings.sharedPin || '1234';
+    if (sharedPin === expectedPin) {
       setShowSharedPinModal(false);
       await handleGuestLogin();
     } else {

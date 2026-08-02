@@ -348,27 +348,50 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const login = async () => {
     try {
       // On mobile or inside an iframe, popup is often blocked or storage is restricted.
-      await signInWithPopup(auth, googleProvider);
+      // Create a 7-second timeout race to prevent UI hanging when popup is silently blocked
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => {
+          reject(new Error('TIMEOUT'));
+        }, 7000);
+      });
+
+      await Promise.race([
+        signInWithPopup(auth, googleProvider),
+        timeoutPromise
+      ]);
     } catch (error: any) {
+      if (error.message === 'TIMEOUT') {
+        const isIframe = window.self !== window.top;
+        if (isIframe) {
+          throw new Error('تعذر فتح نافذة Google داخل المعاينة. يرجى فتح التطبيق في تبويب مستقل أو استخدام "الدخول التجريبي الفوري".');
+        } else {
+          throw new Error('استغرقت استجابة Google وقتاً أطول من المتوقع. يرجى السماح بالنوافذ المنبثقة والمحاولة مجدداً.');
+        }
+      }
+
+      if (error.code === 'auth/popup-closed-by-user') {
+        console.info('Login popup closed by user');
+        throw new Error('تم إغلاق نافذة تسجيل الدخول. يمكنك المحاولة مجدداً أو استخدام "الدخول التجريبي الفوري".');
+      }
+
       console.error('Detailed login error:', error);
       
       let friendlyMessage = '';
       if (error.code === 'auth/popup-blocked' || error.code === 'auth/cancelled-popup-request') {
-        try {
-          await signInWithRedirect(auth, googleProvider);
-          return;
-        } catch (redirectError: any) {
-          console.error('Redirect error:', redirectError);
-          friendlyMessage = 'تم حظر نافذة تسجيل الدخول. يرجى السماح بالنوافذ المنبثقة في المتصفح، أو فتح التطبيق في علامة تبويب جديدة لتسجيل الدخول عبر Google.';
+        const isIframe = window.self !== window.top;
+        if (isIframe) {
+          friendlyMessage = 'قام المتصفح بحظر نافذة تسجيل الدخول داخل المعاينة. يرجى فتح التطبيق في تبويب جديد لتسجيل الدخول عبر Google، أو استخدام "الدخول التجريبي الفوري".';
+        } else {
+          friendlyMessage = 'تم حظر نافذة تسجيل الدخول المنبثقة بواسطة المتصفح. يرجى السماح بالنوافذ المنبثقة من إعدادات الشريط العلوي ثم المحاولة مجدداً.';
         }
       } else if (error.code === 'auth/unauthorized-domain') {
-        friendlyMessage = 'هذا النطاق (' + window.location.hostname + ') غير مصرح به في إعدادات Firebase. يرجى إضافته إلى قائمة النطاقات المصرح بها في وحدة تحكم Firebase (Authentication > Settings > Authorized domains).';
+        friendlyMessage = 'هذا النطاق (' + window.location.hostname + ') غير مصرح به في إعدادات Firebase. يرجى إضافته إلى قائمة النطاقات المصرح بها في وحدة تحكم Firebase.';
       } else if (error.code === 'auth/operation-not-allowed') {
         friendlyMessage = 'تسجيل الدخول عبر Google غير مفعل في مشروع Firebase الخاص بك. يرجى تفعيله من وحدة تحكم Firebase.';
       } else if (error.code === 'auth/web-storage-unsupported' || error.message?.includes('storage')) {
-        friendlyMessage = 'ملفات تعريف الارتباط أو التخزين غير مدعومة في إطار المعاينة (Iframe). يرجى فتح التطبيق في علامة تبويب جديدة لتسجيل الدخول عبر Google، أو استخدام "دخول المدير" بالرمز السري.';
+        friendlyMessage = 'ملفات تعريف الارتباط غير مدعومة داخل إطار المعاينة. يرجى فتح التطبيق في علامة تبويب جديدة أو استخدام "الدخول التجريبي الفوري".';
       } else {
-        friendlyMessage = 'حدث خطأ أثناء تسجيل الدخول: ' + (error.message || 'خطأ غير معروف') + ' (تلميح: إذا كنت تستخدم المعاينة، جرب فتح التطبيق في علامة تبويب جديدة أو تسجيل الدخول بالرمز PIN كمدير).';
+        friendlyMessage = error.message || 'حدث خطأ أثناء تسجيل الدخول عبر Google. يمكنك استخدام "الدخول التجريبي الفوري" للمتابعة مباشرة.';
       }
       
       throw new Error(friendlyMessage);

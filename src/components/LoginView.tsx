@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { LogIn, ShieldCheck, Users, Lock, UserCog, ArrowRight, Check, ScanFace, Fingerprint } from 'lucide-react';
+import { LogIn, ShieldCheck, Users, Lock, UserCog, ArrowRight, Check, ScanFace, Fingerprint, Loader2, ExternalLink } from 'lucide-react';
 import { useFirebase } from '../context/FirebaseContext';
 
 export const LoginView: React.FC = () => {
@@ -287,10 +287,19 @@ export const LoginView: React.FC = () => {
           <button
             onClick={handleGoogleLogin}
             disabled={loading || biometricStatus === 'scanning'}
-            className="w-full bg-white text-slate-950 font-black py-4 rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-white/5 disabled:opacity-50"
+            className="w-full bg-white text-slate-950 font-black py-4 rounded-2xl flex items-center justify-center gap-3 active:scale-95 transition-all shadow-xl shadow-white/5 disabled:opacity-50 hover:bg-slate-100"
           >
-            <LogIn className="w-5 h-5 text-blue-600" />
-            تسجيل الدخول عبر Google
+            {loading ? (
+              <>
+                <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                <span>جاري الاتصال بـ Google...</span>
+              </>
+            ) : (
+              <>
+                <LogIn className="w-5 h-5 text-blue-600" />
+                <span>تسجيل الدخول عبر Google</span>
+              </>
+            )}
           </button>
 
           <button
@@ -325,13 +334,26 @@ export const LoginView: React.FC = () => {
         </div>
 
         {/* Informational tip for preview iframes */}
-        <div className="bg-slate-950/40 p-3.5 rounded-2xl border border-white/5 text-right space-y-1 text-gray-400 text-[9px] leading-relaxed mb-6">
-          <span className="text-amber-400 font-black block text-[10px]">💡 تنبيه هام لبيئة المعاينة:</span>
+        <div className="bg-slate-900/80 p-3.5 rounded-2xl border border-white/10 text-right space-y-2 text-gray-300 text-[10px] leading-relaxed mb-6">
+          <div className="flex items-center justify-between">
+            <span className="text-amber-400 font-black flex items-center gap-1">
+              💡 تنبيه تسجيل الدخول عبر Google:
+            </span>
+            <a 
+              href={window.location.href} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-xs text-blue-400 hover:text-blue-300 font-extrabold flex items-center gap-1 bg-blue-500/10 px-2 py-0.5 rounded-lg border border-blue-500/20"
+            >
+              <ExternalLink className="w-3 h-3" />
+              فتح في تبويب مستقل
+            </a>
+          </div>
           <p>
-            تمنع بعض المتصفحات ملفات تعريف الارتباط وفتح نوافذ الـ Pop-ups الخاصة بـ Google داخل نافذة المعاينة الجانبية.
+            تمنع قيود الأمان في بعض المتصفحات فتح نافذة Google داخل إطار المعاينة الجانبي.
           </p>
           <p className="text-gray-300">
-            للدخول الكامل فوراً، يرجى استخدام <strong className="text-white">"الدخول التجريبي الفوري"</strong>، أو انقر على زر <strong className="text-white">"فتح في علامة تبويب جديدة ↗"</strong> بأعلى الشاشة لتسجيل الدخول بحساب Google الشخصي بأمان تام.
+            إذا لم تفُتح نافذة Google، انقر على <strong className="text-white">"فتح في تبويب مستقل"</strong> أعلاه، أو استخدم <strong className="text-white">"الدخول التجريبي الفوري"</strong> للدخول المباشر.
           </p>
         </div>
 

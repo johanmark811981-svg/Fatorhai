@@ -81,42 +81,45 @@ export const SecurityLock: React.FC<SecurityLockProps> = ({ isEnabled, savedPin,
     
     setBiometricStatus('scanning');
     
-    try {
-      // Request camera access
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: 'user',
-          width: { ideal: 480 },
-          height: { ideal: 480 }
-        } 
-      });
-      streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
+    let isSuccess = false;
+    if (window.PublicKeyCredential && navigator.credentials?.create) {
+      try {
+        const cred = await navigator.credentials.create({
+          publicKey: {
+            challenge: Uint8Array.from('lock_challenge_' + Date.now(), c => c.charCodeAt(0)),
+            rp: { name: 'نظام الإدارة المالية' },
+            user: {
+              id: Uint8Array.from('lock_user_id', c => c.charCodeAt(0)),
+              name: 'user@finance.app',
+              displayName: 'قفل الأمان',
+            },
+            pubKeyCredParams: [
+              { alg: -7, type: 'public-key' },
+              { alg: -257, type: 'public-key' },
+            ],
+            authenticatorSelection: {
+              userVerification: 'required',
+            },
+            timeout: 30000,
+          },
+        });
+        if (cred) isSuccess = true;
+      } catch (err) {
+        console.warn('WebAuthn biometric auth failed or cancelled:', err);
       }
-    } catch (err) {
-      console.error('Camera access denied:', err);
     }
-    
-    // Simulate FaceID processing
-    biometricTimeoutRef.current = setTimeout(() => {
-      // 95% success rate for simulation
-      const isSuccess = Math.random() > 0.05;
-      
-      stopCamera();
 
-      if (isSuccess) {
-        setBiometricStatus('success');
-        setTimeout(() => {
-          handleUnlockSuccess();
-        }, 800);
-      } else {
-        setBiometricStatus('failed');
-        setTimeout(() => {
-          setBiometricStatus('idle');
-        }, 2000);
-      }
-    }, 3500);
+    if (isSuccess) {
+      setBiometricStatus('success');
+      setTimeout(() => {
+        handleUnlockSuccess();
+      }, 500);
+    } else {
+      setBiometricStatus('failed');
+      setTimeout(() => {
+        setBiometricStatus('idle');
+      }, 1500);
+    }
   };
 
   const handleUnlockSuccess = () => {

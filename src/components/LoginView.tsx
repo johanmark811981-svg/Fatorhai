@@ -43,43 +43,58 @@ export const LoginView: React.FC = () => {
     
     setBiometricStatus('scanning');
     setError('');
-    
-    try {
-      // Request camera access for realism
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' } 
-      }).catch(() => null);
-      
-      if (stream) {
-        streamRef.current = stream;
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
+
+    let authenticated = false;
+
+    // Check if WebAuthn API is supported for native device biometric check
+    if (window.PublicKeyCredential && navigator.credentials?.create) {
+      try {
+        const cred = await navigator.credentials.create({
+          publicKey: {
+            challenge: Uint8Array.from('finance_app_challenge_' + Date.now(), c => c.charCodeAt(0)),
+            rp: { name: 'نظام الإدارة المالية' },
+            user: {
+              id: Uint8Array.from('admin_user_id', c => c.charCodeAt(0)),
+              name: 'admin@finance.app',
+              displayName: 'المدير العام',
+            },
+            pubKeyCredParams: [
+              { alg: -7, type: 'public-key' },
+              { alg: -257, type: 'public-key' },
+            ],
+            authenticatorSelection: {
+              userVerification: 'required',
+            },
+            timeout: 30000,
+          },
+        });
+        if (cred) {
+          authenticated = true;
         }
+      } catch (err: any) {
+        console.warn('Native biometric authentication failed or cancelled:', err);
       }
-    } catch (err) {
-      console.warn('Camera access denied for biometric login, using simulation only');
     }
-    
-    // Simulate FaceID processing
-    biometricTimeoutRef.current = setTimeout(async () => {
+
+    if (authenticated) {
+      setBiometricStatus('success');
+      try {
+        await loginWithBiometrics();
+      } catch (e) {
+        setError('حدث خطأ أثناء تسجيل الدخول بالبصمة.');
+        setBiometricStatus('idle');
+      }
+    } else {
+      setBiometricStatus('failed');
       stopCamera();
       
-      try {
-        const success = await loginWithBiometrics();
-        if (success) {
-          setBiometricStatus('success');
-        } else {
-          setBiometricStatus('failed');
-          setError('فشل التعرف على البصمة/الوجه. يرجى المحاولة مرة أخرى أو استخدام الرمز.');
-          setTimeout(() => setBiometricStatus('idle'), 2000);
-        }
-      } catch (e) {
-        console.error('Biometric login error:', e);
-        setBiometricStatus('failed');
-        setError('فشل الدخول التلقائي. يرجى استخدام طريقة أخرى.');
-        setTimeout(() => setBiometricStatus('idle'), 2000);
-      }
-    }, 3000);
+      // Redirect to PIN prompt so user MUST enter PIN to enter
+      setShowAdminLogin(true);
+      setIsSettingPin(false);
+      setPin('');
+      setError('يلزم إدخال رمز PIN للدخول للتحقق من هوية المستخدم.');
+      setTimeout(() => setBiometricStatus('idle'), 1500);
+    }
   };
 
   const handleAdminSubmit = async (e: React.FormEvent) => {

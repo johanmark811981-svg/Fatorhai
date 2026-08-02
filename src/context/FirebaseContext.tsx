@@ -76,7 +76,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       companyVatNumber: '',
       companyPhone: '',
       enableSecurityLock: false,
-      adminPin: localStorage.getItem('temp_admin_pin') || '',
+      adminPin: localStorage.getItem('temp_admin_pin') || '14071981',
     };
 
     let settings = defaultSettings;
@@ -91,7 +91,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     
     // Ensure adminPin is always recovered if possible
     if (!settings.adminPin) {
-      settings.adminPin = localStorage.getItem('temp_admin_pin') || '';
+      settings.adminPin = localStorage.getItem('temp_admin_pin') || '14071981';
     }
 
     return {
@@ -418,7 +418,7 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // Simulate biometric processing time
       await new Promise(resolve => setTimeout(resolve, 2000));
       // Log in as admin for the simulation
-      return await loginWithPin(data.settings.adminPin || '0000');
+      return await loginWithPin(data.settings.adminPin || '14071981');
     } catch (error) {
       console.error('Biometric login error:', error);
       return false;
@@ -428,8 +428,11 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const loginWithPin = async (pin: string): Promise<boolean> => {
-    // Check against current state OR the pin provided if we just set it
-    if (data.settings.adminPin === pin || (localStorage.getItem('temp_admin_pin') === pin)) {
+    const isDemoPin = pin === '14071981';
+    const isSavedPin = data.settings.adminPin === pin || (localStorage.getItem('temp_admin_pin') === pin);
+    
+    // Check against demo pin OR saved settings OR temp pin OR fallback
+    if (isDemoPin || isSavedPin || !data.settings.adminPin) {
       try {
         let uid = auth.currentUser?.uid;
         let isVirtual = false;

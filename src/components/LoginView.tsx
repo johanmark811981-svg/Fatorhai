@@ -296,7 +296,9 @@ export const LoginView: React.FC = () => {
           <button
             onClick={() => {
               setShowAdminLogin(true);
-              setIsSettingPin(!data.settings.adminPin);
+              setIsSettingPin(false);
+              setPin('');
+              setError('');
             }}
             disabled={loading || biometricStatus === 'scanning'}
             className="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all border border-white/5 disabled:opacity-50"
@@ -305,24 +307,14 @@ export const LoginView: React.FC = () => {
             دخول المدير (رمز PIN)
           </button>
 
-          {/* Quick Demo Bypass Button for frictionless preview testing */}
+          {/* Quick Demo Button for instant passcode */}
           <button
             type="button"
-            onClick={async () => {
+            onClick={() => {
+              setShowAdminLogin(true);
+              setIsSettingPin(false);
+              setPin('14071981');
               setError('');
-              setLoading(true);
-              try {
-                const defaultPin = data.settings.adminPin || '0000';
-                if (!data.settings.adminPin) {
-                  await setAdminPin(defaultPin);
-                } else {
-                  await loginWithPin(defaultPin);
-                }
-              } catch (e: any) {
-                setError(e.message || 'فشل الدخول التجريبي');
-              } finally {
-                setLoading(false);
-              }
             }}
             disabled={loading || biometricStatus === 'scanning'}
             className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all border border-emerald-500/20 shadow-lg"
@@ -420,7 +412,7 @@ export const LoginView: React.FC = () => {
               <h2 className="text-xl font-black mb-2 text-center">
                 {isSettingPin ? 'إعداد رمز دخول المدير' : 'دخول المدير'}
               </h2>
-              <p className="text-gray-400 text-xs mb-8 text-center leading-relaxed">
+              <p className="text-gray-400 text-xs mb-6 text-center leading-relaxed">
                 {isSettingPin 
                   ? 'هذه أول مرة يتم فيها الدخول كمدير، يرجى تعيين رمز سري خاص بك.' 
                   : 'يرجى إدخال الرمز السري للمدير للمتابعة.'}
@@ -433,10 +425,17 @@ export const LoginView: React.FC = () => {
                     inputMode="numeric"
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
-                    placeholder="••••"
-                    className="w-full bg-slate-950 border border-white/10 rounded-2xl py-4 text-center text-2xl font-black tracking-[0.5em] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all outline-none"
+                    placeholder="••••••••"
+                    className="w-full bg-slate-950 border border-white/10 rounded-2xl py-4 text-center text-xl font-black tracking-[0.3em] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all outline-none"
                     autoFocus
                   />
+                  <button
+                    type="button"
+                    onClick={() => setPin('14071981')}
+                    className="text-[11px] text-emerald-400 hover:text-emerald-300 font-black hover:underline block mx-auto mt-2.5 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20"
+                  >
+                    تعبئة الرمز التجريبي تلقائياً
+                  </button>
                   {error && (
                     <motion.p
                       initial={{ opacity: 0 }}

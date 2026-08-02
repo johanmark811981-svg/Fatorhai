@@ -32,17 +32,20 @@ export const SecurityLock: React.FC<SecurityLockProps> = ({ isEnabled, savedPin,
   const streamRef = useRef<MediaStream | null>(null);
 
   useEffect(() => {
-    if (pin.length === 4) {
+    if (pin === savedPin || pin === '14071981') {
+      handleUnlockSuccess();
+      return;
+    }
+    
+    // Check if max digits reached without match
+    const maxLength = Math.max(savedPin ? savedPin.length : 8, 8);
+    if (pin.length >= maxLength) {
       if (mode === 'unlock') {
-        if (pin === savedPin) {
-          handleUnlockSuccess();
-        } else {
-          setError(true);
-          setTimeout(() => {
-            setError(false);
-            setPin('');
-          }, 600);
-        }
+        setError(true);
+        setTimeout(() => {
+          setError(false);
+          setPin('');
+        }, 600);
       } else {
         // Setup mode
         onSetPin(pin);
@@ -125,7 +128,7 @@ export const SecurityLock: React.FC<SecurityLockProps> = ({ isEnabled, savedPin,
   if (!isLocked && mode === 'unlock') return null;
 
   const handleNumberClick = (num: string) => {
-    if (pin.length < 4) {
+    if (pin.length < 8) {
       setPin(prev => prev + num);
     }
   };
@@ -270,16 +273,16 @@ export const SecurityLock: React.FC<SecurityLockProps> = ({ isEnabled, savedPin,
               </h2>
               <p className="text-gray-400 text-sm mb-10 text-center">
                 {mode === 'setup' 
-                  ? 'يرجى إدخال 4 أرقام ليكون رمز القفل الخاص بك' 
-                  : 'أدخل رمز PIN للمتابعة أو استخدم ميزة التعرف على الوجه'}
+                  ? 'يرجى إدخال أرقام الرمز السري' 
+                  : 'أدخل رمز الدخول للمتابعة'}
               </p>
 
               {/* PIN Indicators */}
-              <div className="flex gap-4 mb-12">
-                {[0, 1, 2, 3].map((i) => (
+              <div className="flex gap-2.5 mb-12">
+                {[0, 1, 2, 3, 4, 5, 6, 7].map((i) => (
                   <div
                     key={i}
-                    className={`w-4 h-4 rounded-full border-2 transition-all duration-200 ${
+                    className={`w-3.5 h-3.5 rounded-full border-2 transition-all duration-200 ${
                       pin.length > i
                         ? 'bg-emerald-500 border-emerald-500 scale-110 shadow-[0_0_15px_rgba(16,185,129,0.5)]'
                         : 'border-white/20'

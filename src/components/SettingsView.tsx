@@ -129,6 +129,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   
   // New state for adding employees & security bypass
   const [showAddUserForm, setShowAddUserForm] = useState(false);
+  const [confirmDeleteUserUid, setConfirmDeleteUserUid] = useState<string | null>(null);
   const [newUserName, setNewUserName] = useState('');
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserRole, setNewUserRole] = useState<'admin' | 'employee'>('employee');
@@ -656,30 +657,27 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   }, [isAdmin]);
 
   const handleUpdateUserRole = async (uid: string, newRole: 'admin' | 'employee') => {
-    if (confirm(`هل أنت متأكد من تغيير صلاحية المستخدم إلى ${newRole === 'admin' ? 'مدير' : 'موظف'}؟`)) {
-      const updatedUsers = allUsers.map(u => u.uid === uid ? { ...u, role: newRole } : u);
-      setAllUsers(updatedUsers);
-      syncToLocal('employees_list', updatedUsers);
-      
-      try {
-        await updateDoc(doc(db, 'users', uid), { role: newRole });
-      } catch (err) {
-        console.warn("Failed to update user role in cloud, stored locally:", err);
-      }
+    const updatedUsers = allUsers.map(u => u.uid === uid ? { ...u, role: newRole } : u);
+    setAllUsers(updatedUsers);
+    syncToLocal('employees_list', updatedUsers);
+    
+    try {
+      await updateDoc(doc(db, 'users', uid), { role: newRole });
+    } catch (err) {
+      console.warn("Failed to update user role in cloud, stored locally:", err);
     }
   };
 
   const handleDeleteEmployee = async (uid: string) => {
-    if (confirm('هل أنت متأكد من حذف هذا الموظف نهائياً؟')) {
-      const updatedUsers = allUsers.filter(u => u.uid !== uid);
-      setAllUsers(updatedUsers);
-      syncToLocal('employees_list', updatedUsers);
-      
-      try {
-        await deleteDoc(doc(db, 'users', uid));
-      } catch (err) {
-        console.warn("Failed to delete user in cloud, stored locally:", err);
-      }
+    const updatedUsers = allUsers.filter(u => u.uid !== uid);
+    setAllUsers(updatedUsers);
+    syncToLocal('employees_list', updatedUsers);
+    setConfirmDeleteUserUid(null);
+    
+    try {
+      await deleteDoc(doc(db, 'users', uid));
+    } catch (err) {
+      console.warn("Failed to delete user in cloud, stored locally:", err);
     }
   };
 
@@ -773,12 +771,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   const [isEditingPin, setIsEditingPin] = useState(false);
   const [newAdminPin, setNewAdminPin] = useState(settings.adminPin || '');
 
+  const [isEditingSharedPin, setIsEditingSharedPin] = useState(false);
+  const [newSharedPin, setNewSharedPin] = useState(settings.sharedPin || '');
+
   const handleUpdatePin = () => {
     if (newAdminPin.length >= 4) {
       onUpdateSettings({ adminPin: newAdminPin });
       setIsEditingPin(false);
     } else {
       alert('يجب أن يكون الرمز 4 أرقام على الأقل');
+    }
+  };
+
+  const handleUpdateSharedPin = () => {
+    if (newSharedPin.length >= 4) {
+      onUpdateSettings({ sharedPin: newSharedPin, enableSharedPin: true });
+      setIsEditingSharedPin(false);
+    } else {
+      alert('يجب أن يكون رمز الحساب المشترك 4 أرقام على الأقل');
     }
   };
 
@@ -1358,7 +1368,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
 
               {/* Master Admin PIN Management */}
               {isAdmin && (
-                <div className="pt-3 border-t border-white/5 space-y-3">
+                <div className="pt-3 border-t border-white/5 space-y-4">
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between">
                       <div>
@@ -1404,6 +1414,91 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                         </button>
                       </div>
                     )}
+                  </div>
+
+                  {/* Shared Account Access PIN */}
+                  <div className="pt-3 border-t border-white/5 space-y-3">
+                    <div className="flex items-center justify-between bg-slate-950/40 p-3 rounded-2xl border border-white/5">
+                      <div>
+                        <span className="text-xs font-bold text-white block">تفعيل رمز دخول للحساب المشترك (Shared Account PIN)</span>
+                        <span className="text-[9px] text-gray-400">طلب رمز سري عند النقر على "حساب مشترك" في صفحة الدخول</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!settings.sharedPin) {
+                            setNewSharedPin('1234');
+                            setIsEditingSharedPin(true);
+                          } else {
+                            onUpdateSettings({ enableSharedPin: !(settings.enableSharedPin !== false) });
+                          }
+                        }}
+                        className={`w-12 h-6 rounded-full transition-colors relative p-1 ${
+                          (settings.enableSharedPin !== false) && settings.sharedPin ? 'bg-teal-500' : 'bg-slate-800'
+                        }`}
+                      >
+                        <div
+                          className={`w-4 h-4 bg-white rounded-full transition-transform ${
+                            (settings.enableSharedPin !== false) && settings.sharedPin ? 'translate-x-0' : '-translate-x-6'
+                          }`}
+                        />
+                      </button>
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between px-1">
+                        <div>
+                          <span className="text-xs font-black text-white block">رمز دخول الحساب المشترك</span>
+                          <span className="text-[9px] text-gray-500 leading-tight block">
+                            {settings.sharedPin && (settings.enableSharedPin !== false)
+                              ? `الرمز الحالي: (${settings.sharedPin}) - مطلوب عند تسجيل الدخول بالحساب المشترك`
+                              : 'لم يتم تعيين رمز للحساب المشترك أو أن الخيار معطل للدخول المباشر'}
+                          </span>
+                        </div>
+                        {!isEditingSharedPin && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setNewSharedPin(settings.sharedPin || '1234');
+                              setIsEditingSharedPin(true);
+                            }}
+                            className="text-[10px] bg-teal-500/10 text-teal-400 px-3 py-1.5 rounded-xl border border-teal-500/20 font-black shadow-sm"
+                          >
+                            {settings.sharedPin ? 'تغيير رمز المشترك' : 'تعيين رمز سري'}
+                          </button>
+                        )}
+                      </div>
+
+                      {isEditingSharedPin && (
+                        <div className="flex items-center gap-2 mt-1 bg-slate-950/60 p-2.5 rounded-2xl border border-white/5">
+                          <input
+                            type="password"
+                            inputMode="numeric"
+                            maxLength={6}
+                            value={newSharedPin}
+                            onChange={(e) => setNewSharedPin(e.target.value.replace(/\D/g, ''))}
+                            placeholder="مثال: 1234"
+                            className="flex-1 bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs font-mono tracking-[0.5em] text-center text-white font-bold"
+                            autoFocus
+                          />
+                          <button
+                            type="button"
+                            onClick={handleUpdateSharedPin}
+                            className="bg-teal-600 hover:bg-teal-500 text-white px-4 py-2 rounded-xl text-xs font-black transition-all"
+                          >
+                            حفظ الرمز
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIsEditingSharedPin(false)}
+                            className="bg-slate-800 hover:bg-slate-700 text-gray-400 px-3 py-2 rounded-xl text-xs"
+                          >
+                            إلغاء
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               )}
@@ -1625,17 +1720,43 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                                     <UserCog className="w-3.5 h-3.5" />
                                   </button>
 
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleDeleteEmployee(u.uid);
-                                    }}
-                                    className="p-1.5 bg-slate-900 border border-red-500/10 hover:border-red-500/30 rounded-xl text-red-400 hover:text-red-300 transition-colors"
-                                    title="حذف الموظف"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
+                                  {confirmDeleteUserUid === u.uid ? (
+                                    <div className="flex items-center gap-1 bg-rose-500/10 border border-rose-500/30 px-2 py-1 rounded-xl text-rose-300">
+                                      <span className="text-[9px] font-bold">حذف؟</span>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleDeleteEmployee(u.uid);
+                                        }}
+                                        className="px-2 py-0.5 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-[9px] font-black transition-all shadow-sm"
+                                      >
+                                        تأكيد 🗑️
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setConfirmDeleteUserUid(null);
+                                        }}
+                                        className="px-1.5 py-0.5 bg-slate-800 hover:bg-slate-700 text-gray-300 rounded-lg text-[9px]"
+                                      >
+                                        إلغاء
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setConfirmDeleteUserUid(u.uid);
+                                      }}
+                                      className="p-1.5 bg-slate-900 border border-red-500/10 hover:border-red-500/30 rounded-xl text-red-400 hover:text-red-300 transition-colors"
+                                      title="حذف الموظف"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  )}
                                 </>
                               )}
 

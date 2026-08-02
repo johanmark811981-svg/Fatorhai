@@ -66,11 +66,12 @@ service cloud.firestore {
       // Users can read their own doc, admins can get any user doc and list the entire collection
       allow get: if isSignedIn() && (request.auth.uid == userId || isAdmin());
       allow list: if isAdmin();
-      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow create: if isSignedIn() && (request.auth.uid == userId || isAdmin());
       allow update: if isSignedIn() && (
         (request.auth.uid == userId && incoming().diff(existing()).affectedKeys().hasOnly(['name'])) ||
         isAdmin()
       );
+      allow delete: if isAdmin();
     }
 
     // Financial Data Collections

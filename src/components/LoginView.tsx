@@ -6,6 +6,9 @@ import { useFirebase } from '../context/FirebaseContext';
 export const LoginView: React.FC = () => {
   const { login, loginAsGuest, loginWithPin, loginWithBiometrics, setAdminPin, data } = useFirebase();
   const [showAdminLogin, setShowAdminLogin] = useState(false);
+  const [showSharedPinModal, setShowSharedPinModal] = useState(false);
+  const [sharedPin, setSharedPin] = useState('');
+  const [sharedPinError, setSharedPinError] = useState('');
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -133,6 +136,32 @@ export const LoginView: React.FC = () => {
     }
   };
 
+  const handleSharedAccountClick = () => {
+    setError('');
+    const isSharedPinActive = (data.settings.enableSharedPin !== false) && !!data.settings.sharedPin;
+    if (isSharedPinActive) {
+      setShowSharedPinModal(true);
+      setSharedPin('');
+      setSharedPinError('');
+    } else {
+      handleGuestLogin();
+    }
+  };
+
+  const handleSharedPinSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (loading) return;
+    setSharedPinError('');
+
+    if (sharedPin === data.settings.sharedPin) {
+      setShowSharedPinModal(false);
+      await handleGuestLogin();
+    } else {
+      setSharedPinError('رمز دخول الحساب المشترك غير صحيح');
+      setSharedPin('');
+    }
+  };
+
   return (
     <div className="fixed inset-0 z-[10000] bg-slate-950 flex flex-col items-center justify-center p-6 text-white dir-rtl overflow-y-auto">
       {/* Background Decor */}
@@ -241,7 +270,7 @@ export const LoginView: React.FC = () => {
 
         <div className="flex items-center justify-center gap-4 text-gray-500">
           <button
-            onClick={handleGuestLogin}
+            onClick={handleSharedAccountClick}
             disabled={loading}
             className="flex flex-col items-center gap-1 hover:text-white transition-colors group"
           >
@@ -345,6 +374,80 @@ export const LoginView: React.FC = () => {
                     <>
                       {isSettingPin ? <Check className="w-5 h-5" /> : <LogIn className="w-5 h-5" />}
                       {isSettingPin ? 'تعيين وحفظ الرمز' : 'دخول'}
+                    </>
+                  )}
+                </button>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Shared Account PIN Overlay */}
+        {showSharedPinModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[10001] bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-6"
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 20 }}
+              className="max-w-sm w-full bg-slate-900 border border-white/10 p-8 rounded-[40px] shadow-2xl relative"
+            >
+              <button
+                onClick={() => setShowSharedPinModal(false)}
+                className="absolute top-6 left-6 p-2 bg-slate-800 rounded-full text-gray-400 hover:text-white"
+              >
+                <ArrowRight className="w-4 h-4" />
+              </button>
+
+              <div className="w-16 h-16 bg-teal-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-teal-500/30">
+                <Users className="w-8 h-8 text-teal-400" />
+              </div>
+
+              <h2 className="text-xl font-black mb-2 text-center text-white">
+                دخول الحساب المشترك
+              </h2>
+              <p className="text-gray-400 text-xs mb-6 text-center leading-relaxed">
+                هذا الحساب محمي برمز سري. يرجى إدخال رمز دخول الحساب المشترك للمتابعة.
+              </p>
+
+              <form onSubmit={handleSharedPinSubmit} className="space-y-6">
+                <div>
+                  <input
+                    type="password"
+                    inputMode="numeric"
+                    maxLength={6}
+                    value={sharedPin}
+                    onChange={(e) => setSharedPin(e.target.value.replace(/\D/g, ''))}
+                    placeholder="••••"
+                    className="w-full bg-slate-950 border border-white/10 rounded-2xl py-4 text-center text-2xl font-mono font-black tracking-[0.4em] text-teal-400 focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all outline-none"
+                    autoFocus
+                  />
+                  {sharedPinError && (
+                    <motion.p
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="text-rose-500 text-[10px] font-bold mt-2 text-center bg-rose-500/10 py-1.5 rounded-lg border border-rose-500/20"
+                    >
+                      {sharedPinError}
+                    </motion.p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading || !sharedPin}
+                  className={`w-full bg-teal-600 hover:bg-teal-500 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-3 shadow-lg shadow-teal-900/20 active:scale-95 transition-all ${loading || !sharedPin ? 'opacity-50 cursor-not-allowed' : ''}`}
+                >
+                  {loading ? (
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <LogIn className="w-5 h-5" />
+                      <span>تأكيد ودخول</span>
                     </>
                   )}
                 </button>

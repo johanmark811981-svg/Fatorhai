@@ -164,6 +164,8 @@ export interface AppSettings {
   enableSecurityLock: boolean;
   securityPin?: string;
   adminPin?: string;
+  sharedPin?: string;
+  enableSharedPin?: boolean;
   webhookUrl?: string;
   enableWebhook?: boolean;
   invoiceFooterNote?: string;

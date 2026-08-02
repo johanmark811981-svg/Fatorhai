@@ -307,13 +307,13 @@ export const LoginView: React.FC = () => {
             دخول المدير (رمز PIN)
           </button>
 
-          {/* Quick Demo Button for instant passcode */}
+          {/* Quick Demo Button */}
           <button
             type="button"
             onClick={() => {
               setShowAdminLogin(true);
               setIsSettingPin(false);
-              setPin('14071981');
+              setPin('');
               setError('');
             }}
             disabled={loading || biometricStatus === 'scanning'}
@@ -429,13 +429,6 @@ export const LoginView: React.FC = () => {
                     className="w-full bg-slate-950 border border-white/10 rounded-2xl py-4 text-center text-xl font-black tracking-[0.3em] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all outline-none"
                     autoFocus
                   />
-                  <button
-                    type="button"
-                    onClick={() => setPin('14071981')}
-                    className="text-[11px] text-emerald-400 hover:text-emerald-300 font-black hover:underline block mx-auto mt-2.5 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20"
-                  >
-                    تعبئة الرمز التجريبي تلقائياً
-                  </button>
                   {error && (
                     <motion.p
                       initial={{ opacity: 0 }}

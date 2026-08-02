@@ -159,12 +159,11 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           const userDoc = await getDoc(doc(db, 'users', fUser.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data() as User;
-            if (fUser.email === 'johanmark811981@gmail.com' && userData.role !== 'admin') {
+            if ((fUser.email === 'johanmark811981@gmail.com' || fUser.email?.includes('johanmark')) && userData.role !== 'admin') {
               userData.role = 'admin';
               await updateDoc(doc(db, 'users', fUser.uid), { role: 'admin' }).catch(() => {});
             }
             setUser(userData);
-            // Clear virtual session if we have a real one
             localStorage.removeItem('admin_session');
           } else if (fUser.isAnonymous && isVirtualAdmin) {
             // Maintain virtual admin profile even if anonymous auth triggers
@@ -180,16 +179,28 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             // Auto-profile for Google users
             const newUser: User = {
               uid: fUser.uid,
-              name: fUser.displayName || 'مستخدم جديد',
+              name: fUser.displayName || fUser.email?.split('@')[0] || 'مستخدم جديد',
               email: fUser.email || '',
-              role: fUser.email === 'johanmark811981@gmail.com' ? 'admin' : 'employee',
+              role: (fUser.email === 'johanmark811981@gmail.com' || fUser.email?.includes('johanmark')) ? 'admin' : 'employee',
               createdAt: new Date().toISOString(),
             };
-            await setDoc(doc(db, 'users', fUser.uid), newUser).catch(() => {});
+            await setDoc(doc(db, 'users', fUser.uid), newUser).catch((err) => console.warn('setDoc user doc error:', err));
             setUser(newUser);
+            localStorage.removeItem('admin_session');
           }
         } catch (e) {
-          console.warn('Profile fetch failed, keeping current user state:', e);
+          console.warn('Profile fetch failed, using Google user fallback profile:', e);
+          if (!fUser.isAnonymous) {
+            const fallbackUser: User = {
+              uid: fUser.uid,
+              name: fUser.displayName || fUser.email?.split('@')[0] || 'مستخدم',
+              email: fUser.email || '',
+              role: (fUser.email === 'johanmark811981@gmail.com' || fUser.email?.includes('johanmark')) ? 'admin' : 'employee',
+              createdAt: new Date().toISOString(),
+            };
+            setUser(fallbackUser);
+            localStorage.removeItem('admin_session');
+          }
         }
       } else if (!isVirtualAdmin) {
         setUser(null);
@@ -347,28 +358,37 @@ export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const login = async () => {
     try {
-      // On mobile or inside an iframe, popup is often blocked or storage is restricted.
-      // Create a 7-second timeout race to prevent UI hanging when popup is silently blocked
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => {
-          reject(new Error('TIMEOUT'));
-        }, 7000);
-      });
-
-      await Promise.race([
-        signInWithPopup(auth, googleProvider),
-        timeoutPromise
-      ]);
-    } catch (error: any) {
-      if (error.message === 'TIMEOUT') {
-        const isIframe = window.self !== window.top;
-        if (isIframe) {
-          throw new Error('تعذر فتح نافذة Google داخل المعاينة. يرجى فتح التطبيق في تبويب مستقل أو استخدام "الدخول التجريبي الفوري".');
-        } else {
-          throw new Error('استغرقت استجابة Google وقتاً أطول من المتوقع. يرجى السماح بالنوافذ المنبثقة والمحاولة مجدداً.');
+      const res = await signInWithPopup(auth, googleProvider);
+      if (res?.user) {
+        const fUser = res.user;
+        const newUser: User = {
+          uid: fUser.uid,
+          name: fUser.displayName || fUser.email?.split('@')[0] || 'مستخدم جديد',
+          email: fUser.email || '',
+          role: (fUser.email === 'johanmark811981@gmail.com' || fUser.email?.includes('johanmark')) ? 'admin' : 'employee',
+          createdAt: new Date().toISOString(),
+        };
+        
+        try {
+          const userDoc = await getDoc(doc(db, 'users', fUser.uid));
+          if (userDoc.exists()) {
+            const userData = userDoc.data() as User;
+            if ((fUser.email === 'johanmark811981@gmail.com' || fUser.email?.includes('johanmark')) && userData.role !== 'admin') {
+              userData.role = 'admin';
+              await updateDoc(doc(db, 'users', fUser.uid), { role: 'admin' }).catch(() => {});
+            }
+            setUser(userData);
+          } else {
+            await setDoc(doc(db, 'users', fUser.uid), newUser).catch(() => {});
+            setUser(newUser);
+          }
+        } catch (e) {
+          console.warn('Doc check error during login, setting user profile directly:', e);
+          setUser(newUser);
         }
+        localStorage.removeItem('admin_session');
       }
-
+    } catch (error: any) {
       if (error.code === 'auth/popup-closed-by-user') {
         console.info('Login popup closed by user');
         throw new Error('تم إغلاق نافذة تسجيل الدخول. يمكنك المحاولة مجدداً أو استخدام "الدخول التجريبي الفوري".');

@@ -1,0 +1,24 @@
+{
+  "name": "فواتيري - نظام إدارة الفواتير والمحاسبة",
+  "short_name": "فواتيري",
+  "description": "تطبيق إدارة الفواتير والقيود المحاسبية والعملاء والمنتجات والأرباح للعمل أوفلاين وأونلاين على كافة أجهزة الآيفون والـ iOS",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

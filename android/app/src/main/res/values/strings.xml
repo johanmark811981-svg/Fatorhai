@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">فواتيري</string>
+    <string name="title_activity_main">فواتيري</string>
+    <string name="package_name">com.fawateery.app</string>
+    <string name="custom_url_scheme">com.fawateery.app</string>
+</resources>

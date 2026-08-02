@@ -1,0 +1,15 @@
+{
+  "appId": "com.qualitylinks.app",
+  "appName": "Qualitylinks",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "iosScheme": "https"
+  },
+  "ios": {
+    "contentInset": "always",
+    "allowsLinkPreview": false,
+    "preferredContentMode": "mobile"
+  }
+}

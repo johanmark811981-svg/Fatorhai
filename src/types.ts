@@ -29,6 +29,7 @@ export interface Account {
 export interface Transaction {
   id: string;
   title: string;
+  description?: string;
   amount: number; // Base currency amount
   type: TransactionType;
   categoryId: string;
@@ -159,6 +160,10 @@ export interface AppSettings {
   companyVatNumber: string;
   companyPhone: string;
   companyNationalAddress?: string;
+  companyCommercialRegister?: string;
+  bankIban?: string;
+  bankName?: string;
+  bankAccountName?: string;
   companyEmail?: string;
   companyLogoUrl?: string;
   enableSecurityLock: boolean;

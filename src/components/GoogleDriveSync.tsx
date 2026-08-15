@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Cloud } from 'lucide-react';
 
 interface GoogleDriveSyncProps {
-  onExport: () => Promise<void>;
+  onExport: (token?: string) => Promise<void>;
 }
 
 export const GoogleDriveSync: React.FC<GoogleDriveSyncProps> = ({ onExport }) => {

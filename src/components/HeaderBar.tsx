@@ -1,6 +1,6 @@
 import React from 'react';
 import { Eye, EyeOff, Sparkles, Building2, SlidersHorizontal, Mic, Smartphone, ExternalLink, Download, Monitor } from 'lucide-react';
-import { AppSettings } from '../types';
+import { AppSettings, DeviceFrameMode } from '../types';
 
 interface HeaderBarProps {
   settings: AppSettings;
@@ -10,8 +10,8 @@ interface HeaderBarProps {
   onOpenSettings: () => void;
   onOpenVoiceAssistant: () => void;
   onOpenIosInstall?: (initialTab?: 'apk' | 'external' | 'pwa' | 'ipa') => void;
-  deviceFrameMode: 'iphone' | 's24_ultra' | 'desktop';
-  onSetDeviceFrameMode: (mode: 'iphone' | 's24_ultra' | 'desktop') => void;
+  deviceFrameMode: DeviceFrameMode;
+  onSetDeviceFrameMode: (mode: DeviceFrameMode) => void;
 }
 
 export const HeaderBar: React.FC<HeaderBarProps> = ({

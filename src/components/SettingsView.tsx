@@ -50,9 +50,10 @@ interface SettingsViewProps {
   settings: AppSettings;
   onUpdateSettings: (newSettings: Partial<AppSettings>) => void;
   onExportBackup: () => void;
+  onUpdateCategory?: (categoryId: string, updates: Partial<Category>) => Promise<void>;
   onResetData: () => void;
   onResetToZero: () => void;
-  exportDataToDrive?: (token: string) => Promise<void>;
+  exportDataToDrive?: (token?: string) => Promise<void>;
   isGoogleDriveEnabled: boolean;
   isAdmin: boolean;
   onLogout: () => void;

@@ -210,22 +210,22 @@ export const SecurityLock: React.FC<SecurityLockProps> = ({ isEnabled, savedPin,
                 
                 <motion.div 
                   animate={
-                    biometricStatus === 'scanning' ? { 
+                    (biometricStatus as string) === 'scanning' ? { 
                       scale: [1, 1.05, 1],
                       boxShadow: [
                         "0 0 20px rgba(16,185,129,0.2)",
                         "0 0 40px rgba(16,185,129,0.4)",
                         "0 0 20px rgba(16,185,129,0.2)"
                       ]
-                    } : biometricStatus === 'failed' ? {
+                    } : (biometricStatus as string) === 'failed' ? {
                       x: [-5, 5, -5, 5, 0],
                       transition: { duration: 0.4 }
                     } : {}
                   }
-                  transition={biometricStatus === 'scanning' ? { duration: 2, repeat: Infinity } : {}}
+                  transition={(biometricStatus as string) === 'scanning' ? { duration: 2, repeat: Infinity } : {}}
                   className={`w-32 h-32 rounded-full overflow-hidden flex items-center justify-center shadow-2xl transition-colors duration-500 relative z-10 ${
-                    biometricStatus === 'success' ? 'bg-emerald-500 text-white' : 
-                    biometricStatus === 'failed' ? 'bg-rose-500/20 text-rose-500 border border-rose-500/50' :
+                    (biometricStatus as string) === 'success' ? 'bg-emerald-500 text-white' : 
+                    (biometricStatus as string) === 'failed' ? 'bg-rose-500/20 text-rose-500 border border-rose-500/50' :
                     'bg-black/40 backdrop-blur-md text-emerald-500 border border-white/20'
                   }`}
                 >

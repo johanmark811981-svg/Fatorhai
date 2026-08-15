@@ -7,6 +7,8 @@ RUN npm install --no-audit --no-fund
 COPY . .
 # جعل الخادم يقرأ المنفذ من متغير البيئة (مطلوب لـ Cloud Run)
 RUN sed -i 's|const PORT = 3000;|const PORT = process.env.PORT ? Number(process.env.PORT) : 3000;|' server.ts
+# إضافة دعم CORS لقبول طلبات التطبيق
+RUN node inject-cors.cjs
 RUN npm run build
 
 # مرحلة التشغيل: خادم الإنتاج فقط

@@ -21,6 +21,21 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/pwa-icon.svg" />
     <link rel="icon" type="image/svg+xml" href="/pwa-icon.svg" />
 
+    <!-- توجيه طلبات API إلى الخادم المنشور عند وجود VITE_API_URL (لنسخة APK) -->
+    <script>
+      (function () {
+        var API_BASE = '%VITE_API_URL%';
+        if (!API_BASE || API_BASE.charAt(0) === '%') return;
+        var origFetch = window.fetch.bind(window);
+        window.fetch = function (url, init) {
+          if (typeof url === 'string' && url.indexOf('/api') === 0) {
+            url = API_BASE + url;
+          }
+          return origFetch(url, init);
+        };
+      })();
+    </script>
+
     <!-- Cairo Arabic Google Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,4 +46,3 @@
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

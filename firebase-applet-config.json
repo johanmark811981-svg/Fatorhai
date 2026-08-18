@@ -7,5 +7,6 @@
   "messagingSenderId": "630397692269",
   "measurementId": "",
   "oAuthClientId": "630397692269-hokcu8ub0813uvmvlpkfad8o0c5ej4th.apps.googleusercontent.com",
-  "recaptchaSiteKey": ""
+  "recaptchaSiteKey": "",
+  "firestoreDatabaseId": "fatorah"
 }

@@ -1,4 +1,4 @@
---- a/src/App.tsx	2026-08-19 10:30:17.000000000 +0000
+--- a/src/App.tsx	2026-08-19 11:15:12.000000000 +0000
 +++ b/src/App.tsx	2026-08-15 18:52:13.000000000 +0000
 @@ -80,7 +80,7 @@
    const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
@@ -9,7 +9,7 @@
 
    const [isAiAdvisorOpen, setIsAiAdvisorOpen] = useState(false);
    const [recentNotification, setRecentNotification] = useState<string | null>(null);
---- a/src/components/HeaderBar.tsx	2026-08-19 10:30:17.000000000 +0000
+--- a/src/components/HeaderBar.tsx	2026-08-19 11:15:12.000000000 +0000
 +++ b/src/components/HeaderBar.tsx	2026-08-15 18:52:44.000000000 +0000
 @@ -74,45 +74,6 @@
            <span className="text-[10px] font-bold hidden lg:inline">تنزيل المشروع ZIP</span>
@@ -57,7 +57,7 @@
 
          {/* Unified Application Installation & Deployment Button */}
          {onOpenIosInstall && (
---- a/src/components/AiAdvisorModal.tsx	2026-08-19 10:30:17.000000000 +0000
+--- a/src/components/AiAdvisorModal.tsx	2026-08-19 11:15:12.000000000 +0000
 +++ b/src/components/AiAdvisorModal.tsx	2026-08-15 18:53:04.000000000 +0000
 @@ -24,7 +24,7 @@
    const [messages, setMessages] = useState<Array<{ sender: 'ai' | 'user'; text: string; time: string }>>([
@@ -68,7 +68,7 @@
        time: 'الآن',
      },
    ]);
---- a/src/components/SettingsView.tsx	2026-08-19 10:30:17.000000000 +0000
+--- a/src/components/SettingsView.tsx	2026-08-19 11:15:12.000000000 +0000
 +++ b/src/components/SettingsView.tsx	2026-08-15 18:55:34.000000000 +0000
 @@ -835,7 +835,7 @@
        <div className="bg-slate-900/40 p-4 rounded-3xl border border-white/5 shadow-inner backdrop-blur-md">
@@ -145,8 +145,8 @@
                    ].map((t) => (
                      <button
                        key={t.id}
---- a/src/components/LoginView.tsx	2026-08-19 10:30:17.000000000 +0000
-+++ b/src/components/LoginView.tsx	2026-08-19 11:07:36.642772486 +0000
+--- a/src/components/LoginView.tsx	2026-08-19 11:15:12.000000000 +0000
++++ b/src/components/LoginView.tsx	2026-08-19 11:07:36.000000000 +0000
 @@ -197,7 +197,7 @@
 
          <h1 className="text-2xl font-black mb-2 tracking-tight text-white">نظام الإدارة المالية</h1>
@@ -156,3 +156,46 @@
          </p>
 
          <div className="space-y-3 mb-8">
+--- a/src/components/IPhoneFrame.tsx	2026-08-19 11:15:12.000000000 +0000
++++ b/src/components/IPhoneFrame.tsx	2026-08-19 11:22:03.000000000 +0000
+@@ -110,20 +110,6 @@
+   if (!enabled || deviceFrameMode === 'fullscreen') {
+     return (
+       <div className="w-full min-h-screen bg-slate-900 text-slate-100 flex flex-col antialiased">
+-        {/* Floating view mode toggle */}
+-        <div className="fixed bottom-4 left-4 z-50 flex items-center gap-2">
+-          <button
+-            onClick={() => {
+-              if (!enabled) onToggleFrame();
+-              if (onChangeDeviceMode) onChangeDeviceMode('s24_ultra');
+-            }}
+-            className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-xl px-3.5 py-2 rounded-full font-bold text-xs flex items-center gap-2 border border-emerald-400/30 transition-transform active:scale-95"
+-            title="عرض محاكي سامسونج جالكسي S24 ألترا"
+-          >
+-            <Smartphone className="w-4 h-4 text-amber-300" />
+-            <span>محاكي Samsung Galaxy S24 Ultra 🤖</span>
+-          </button>
+-        </div>
+         {children}
+       </div>
+     );
+--- a/src/components/DynamicIsland.tsx	2026-08-19 11:15:12.000000000 +0000
++++ b/src/components/DynamicIsland.tsx	2026-08-19 11:22:18.000000000 +0000
+@@ -58,7 +58,7 @@
+               <div className="flex items-center gap-1.5">
+                 <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shadow-sm shadow-emerald-500/50" />
+                 <span className="text-[10px] text-gray-300 font-mono tracking-tight dir-ltr">
+-                  17 Pro Max
++                  Qualitylinks
+                 </span>
+               </div>
+
+@@ -89,7 +89,7 @@
+                   <div className="flex items-center justify-between text-[11px] text-gray-300 border-b border-white/10 pb-1">
+                     <span className="flex items-center gap-1 text-amber-300 font-semibold">
+                       <ShieldCheck className="w-3.5 h-3.5" />
+-                      المساعد المالي الذكي (iOS 17 Pro)
++                      المساعد المالي الذكي
+                     </span>
+                     <button
+                       onClick={(e) => {

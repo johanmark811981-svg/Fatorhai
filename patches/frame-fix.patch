@@ -1,1 +1,158 @@
-test
+--- a/src/App.tsx	2026-08-19 10:30:17.000000000 +0000
++++ b/src/App.tsx	2026-08-15 18:52:13.000000000 +0000
+@@ -80,7 +80,7 @@
+   const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
+   const [isIosInstallOpen, setIsIosInstallOpen] = useState(false);
+   const [installModalTab, setInstallModalTab] = useState<'external' | 'apk' | 'pwa' | 'ipa'>('apk');
+-  const [deviceFrameMode, setDeviceFrameMode] = useState<DeviceFrameMode>('iphone');
++  const [deviceFrameMode, setDeviceFrameMode] = useState<DeviceFrameMode>('desktop');
+
+   const [isAiAdvisorOpen, setIsAiAdvisorOpen] = useState(false);
+   const [recentNotification, setRecentNotification] = useState<string | null>(null);
+--- a/src/components/HeaderBar.tsx	2026-08-19 10:30:17.000000000 +0000
++++ b/src/components/HeaderBar.tsx	2026-08-15 18:52:44.000000000 +0000
+@@ -74,45 +74,6 @@
+           <span className="text-[10px] font-bold hidden lg:inline">تنزيل المشروع ZIP</span>
+         </a>
+
+-        {/* Device Frame Toggles */}
+-        <div className="hidden md:flex items-center gap-1 bg-white/5 p-1 rounded-xl border border-white/10 shadow-inner">
+-          <button
+-            onClick={() => onSetDeviceFrameMode('iphone')}
+-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-[10px] font-black ${
+-              deviceFrameMode === 'iphone' 
+-                ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg border border-blue-400/30' 
+-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+-            }`}
+-            title="وضع عرض iPhone"
+-          >
+-            <Smartphone className="w-3.5 h-3.5" />
+-            <span>iPhone</span>
+-          </button>
+-          <button
+-            onClick={() => onSetDeviceFrameMode('s24_ultra')}
+-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-[10px] font-black ${
+-              deviceFrameMode === 's24_ultra' 
+-                ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-lg border border-emerald-400/30' 
+-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+-            }`}
+-            title="وضع عرض S24 Ultra"
+-          >
+-            <Smartphone className="w-3.5 h-3.5" />
+-            <span>S24 Ultra</span>
+-          </button>
+-          <button
+-            onClick={() => onSetDeviceFrameMode('desktop')}
+-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all text-[10px] font-black ${
+-              deviceFrameMode === 'desktop' 
+-                ? 'bg-gradient-to-r from-slate-600 to-slate-800 text-white shadow-lg border border-slate-400/30' 
+-                : 'text-slate-400 hover:text-white hover:bg-white/5'
+-            }`}
+-            title="وضع عرض الكمبيوتر"
+-          >
+-            <Monitor className="w-3.5 h-3.5" />
+-            <span>Desktop</span>
+-          </button>
+-        </div>
+
+         {/* Unified Application Installation & Deployment Button */}
+         {onOpenIosInstall && (
+--- a/src/components/AiAdvisorModal.tsx	2026-08-19 10:30:17.000000000 +0000
++++ b/src/components/AiAdvisorModal.tsx	2026-08-15 18:53:04.000000000 +0000
+@@ -24,7 +24,7 @@
+   const [messages, setMessages] = useState<Array<{ sender: 'ai' | 'user'; text: string; time: string }>>([
+     {
+       sender: 'ai',
+-      text: 'أهلاً بك! أنا مستشارك المالي الذكي المخصص لهاتف iPhone 17 Pro Max. لقد قمت بتحليل جميع حركاتك المالية الأخيرة، وأنا جاهز لتقديم تقييم مالي وتوصيات مخصصة لزيادة أرباحك.',
++      text: 'أهلاً بك! أنا مستشارك المالي الذكي. لقد قمت بتحليل جميع حركاتك المالية الأخيرة، وأنا جاهز لتقديم تقييم مالي وتوصيات مخصصة لزيادة أرباحك.',
+       time: 'الآن',
+     },
+   ]);
+--- a/src/components/SettingsView.tsx	2026-08-19 10:30:17.000000000 +0000
++++ b/src/components/SettingsView.tsx	2026-08-15 18:55:34.000000000 +0000
+@@ -835,7 +835,7 @@
+       <div className="bg-slate-900/40 p-4 rounded-3xl border border-white/5 shadow-inner backdrop-blur-md">
+         <h2 className="text-base font-extrabold text-white flex items-center gap-2">
+           <SlidersHorizontal className="w-5 h-5 text-teal-400" />
+-          إعدادات التطبيق وتخصيص آيفون 17
++          إعدادات التطبيق والتخصيص
+         </h2>
+         <p className="text-[10px] text-gray-400 mt-1 leading-normal">
+           نظام ذكي وشامل للتحكم بمظهر الهاتف، المبيعات الضريبية، الصلاحيات والمزامنة السحابية الاحترافية.
+@@ -880,53 +880,32 @@
+         {/* TAB 1: APPEARANCE & CURRENCY */}
+         {activeTab === 'appearance' && (
+           <div className="space-y-4">
+-            {/* 1. iPhone 17 Pro Max Chassis Settings */}
++            {/* 1. Appearance Theme Settings */}
+             <div className="bg-slate-900/90 border border-white/10 rounded-3xl p-4 space-y-4 shadow-lg">
+               <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                 <div className="bg-teal-500/10 p-2 rounded-xl border border-teal-500/20">
+                   <Smartphone className="w-4 h-4 text-teal-400" />
+                 </div>
+                 <div>
+-                  <h3 className="text-xs font-black text-white">إطار وهيكل iPhone 17 Pro Max</h3>
+-                  <p className="text-[9px] text-gray-400">محاكاة الهيكل الطبيعي فائق النحافة من أبل</p>
++                  <h3 className="text-xs font-black text-white">مظهر التطبيق</h3>
++                  <p className="text-[9px] text-gray-400">اختر الثيم واللون المفضل لديك</p>
+                 </div>
+               </div>
+
+-              {/* Toggle iPhone Chassis */}
+-              <div className="flex items-center justify-between bg-slate-950/40 p-3 rounded-2xl border border-white/5">
+-                <div>
+-                  <span className="text-xs font-bold text-white block">تفعيل محاكاة الهيكل (Frame)</span>
+-                  <span className="text-[9px] text-gray-400">إظهار أزرار التحكم وجزيرة التنبيهات المدمجة</span>
+-                </div>
+-
+-                <button
+-                  onClick={() => onUpdateSettings({ showiPhoneFrame: !settings.showiPhoneFrame })}
+-                  className={`w-12 h-6 rounded-full transition-colors relative p-1 ${
+-                    settings.showiPhoneFrame ? 'bg-teal-500' : 'bg-slate-800'
+-                  }`}
+-                >
+-                  <div
+-                    className={`w-4 h-4 bg-white rounded-full transition-transform ${
+-                      settings.showiPhoneFrame ? 'translate-x-0' : '-translate-x-6'
+-                    }`}
+-                  />
+-                </button>
+-              </div>
+-
+               {/* Finish Colors */}
+               <div className="space-y-2">
+-                <span className="text-[10px] text-gray-300 font-extrabold block">تشطيبات تيتانيوم سامسونج S24 ألترا وآيفون (Titanium Finishes)</span>
++                <span className="text-[10px] text-gray-300 font-extrabold block">الثيمات المتاحة</span>
+                 <div className="grid grid-cols-2 gap-2 text-xs">
+                   {[
+                     { id: 'dynamic_smart' as AppTheme, name: '✨ ثيم Qualitylinks الديناميكي الذكي (Dynamic Smart)', bg: 'bg-gradient-to-r from-emerald-400 via-teal-500 to-cyan-500' },
+-                    { id: 's24_titanium' as AppTheme, name: 'S24 Ultra تيتانيوم رمادي 🤖', bg: 'bg-stone-400' },
+-                    { id: 's24_black' as AppTheme, name: 'S24 Ultra تيتانيوم أسود 🤖', bg: 'bg-zinc-900' },
+-                    { id: 's24_violet' as AppTheme, name: 'S24 Ultra تيتانيوم بنفسجي 🤖', bg: 'bg-indigo-600' },
+-                    { id: 's24_yellow' as AppTheme, name: 'S24 Ultra تيتانيوم أصفر 🤖', bg: 'bg-amber-500' },
+-                    { id: 'desert' as AppTheme, name: 'تيتانيوم صحراوي Desert 🍎', bg: 'bg-[#c8b093]' },
+-                    { id: 'titanium' as AppTheme, name: 'تيتانيوم طبيعي Raw 🍎', bg: 'bg-stone-500' },
+-                    { id: 'dark' as AppTheme, name: 'أسود الفضاء Space Dark 🍎', bg: 'bg-zinc-800' },
+-                    { id: 'silver' as AppTheme, name: 'فضة بلاتين Silver 🍎', bg: 'bg-slate-300' },
++                    { id: 's24_titanium' as AppTheme, name: 'تيتانيوم رمادي', bg: 'bg-stone-400' },
++                    { id: 's24_black' as AppTheme, name: 'تيتانيوم أسود', bg: 'bg-zinc-900' },
++                    { id: 's24_violet' as AppTheme, name: 'بنفسجي', bg: 'bg-indigo-600' },
++                    { id: 's24_yellow' as AppTheme, name: 'عنبري', bg: 'bg-amber-500' },
++                    { id: 'desert' as AppTheme, name: 'صحراوي Desert', bg: 'bg-[#c8b093]' },
++                    { id: 'titanium' as AppTheme, name: 'تيتانيوم طبيعي Raw', bg: 'bg-stone-500' },
++                    { id: 'dark' as AppTheme, name: 'أسود فضائي Space Dark', bg: 'bg-zinc-800' },
++                    { id: 'silver' as AppTheme, name: 'فضي بلاتيني Silver', bg: 'bg-slate-300' },
+                   ].map((t) => (
+                     <button
+                       key={t.id}
+--- a/src/components/LoginView.tsx	2026-08-19 10:30:17.000000000 +0000
++++ b/src/components/LoginView.tsx	2026-08-19 11:07:36.642772486 +0000
+@@ -197,7 +197,7 @@
+
+         <h1 className="text-2xl font-black mb-2 tracking-tight text-white">نظام الإدارة المالية</h1>
+         <p className="text-gray-400 text-sm mb-8 leading-relaxed px-4">
+-          نظام ايفون 17 برو ماكس لإدارة الحسابات والتقارير المالية بدقة وأمان.
++          نظام متكامل لإدارة الحسابات والتقارير المالية بدقة وأمان.
+         </p>
+
+         <div className="space-y-3 mb-8">

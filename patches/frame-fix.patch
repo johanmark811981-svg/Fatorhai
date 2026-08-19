@@ -1,4 +1,4 @@
---- a/src/App.tsx	2026-08-19 11:15:12.000000000 +0000
+--- a/src/App.tsx	2026-08-19 11:24:27.000000000 +0000
 +++ b/src/App.tsx	2026-08-15 18:52:13.000000000 +0000
 @@ -80,7 +80,7 @@
    const [isVoiceAssistantOpen, setIsVoiceAssistantOpen] = useState(false);
@@ -9,7 +9,7 @@
 
    const [isAiAdvisorOpen, setIsAiAdvisorOpen] = useState(false);
    const [recentNotification, setRecentNotification] = useState<string | null>(null);
---- a/src/components/HeaderBar.tsx	2026-08-19 11:15:12.000000000 +0000
+--- a/src/components/HeaderBar.tsx	2026-08-19 11:24:27.000000000 +0000
 +++ b/src/components/HeaderBar.tsx	2026-08-15 18:52:44.000000000 +0000
 @@ -74,45 +74,6 @@
            <span className="text-[10px] font-bold hidden lg:inline">تنزيل المشروع ZIP</span>
@@ -57,7 +57,7 @@
 
          {/* Unified Application Installation & Deployment Button */}
          {onOpenIosInstall && (
---- a/src/components/AiAdvisorModal.tsx	2026-08-19 11:15:12.000000000 +0000
+--- a/src/components/AiAdvisorModal.tsx	2026-08-19 11:24:27.000000000 +0000
 +++ b/src/components/AiAdvisorModal.tsx	2026-08-15 18:53:04.000000000 +0000
 @@ -24,7 +24,7 @@
    const [messages, setMessages] = useState<Array<{ sender: 'ai' | 'user'; text: string; time: string }>>([
@@ -68,7 +68,7 @@
        time: 'الآن',
      },
    ]);
---- a/src/components/SettingsView.tsx	2026-08-19 11:15:12.000000000 +0000
+--- a/src/components/SettingsView.tsx	2026-08-19 11:24:27.000000000 +0000
 +++ b/src/components/SettingsView.tsx	2026-08-15 18:55:34.000000000 +0000
 @@ -835,7 +835,7 @@
        <div className="bg-slate-900/40 p-4 rounded-3xl border border-white/5 shadow-inner backdrop-blur-md">
@@ -145,8 +145,17 @@
                    ].map((t) => (
                      <button
                        key={t.id}
---- a/src/components/LoginView.tsx	2026-08-19 11:15:12.000000000 +0000
-+++ b/src/components/LoginView.tsx	2026-08-19 11:07:36.000000000 +0000
+--- a/src/components/LoginView.tsx	2026-08-19 11:24:27.000000000 +0000
++++ b/src/components/LoginView.tsx	2026-08-19 12:45:27.000000000 +0000
+@@ -168,7 +168,7 @@
+     if (loading) return;
+     setSharedPinError('');
+
+-    const expectedPin = data.settings.sharedPin || '1234';
++    const expectedPin = data.settings.sharedPin || '1981';
+     if (sharedPin === expectedPin) {
+       setShowSharedPinModal(false);
+       await handleGuestLogin();
 @@ -197,7 +197,7 @@
 
          <h1 className="text-2xl font-black mb-2 tracking-tight text-white">نظام الإدارة المالية</h1>
@@ -156,7 +165,39 @@
          </p>
 
          <div className="space-y-3 mb-8">
---- a/src/components/IPhoneFrame.tsx	2026-08-19 11:15:12.000000000 +0000
+@@ -232,22 +232,6 @@
+             <UserCog className="w-4 h-4 text-emerald-400" />
+             دخول المدير (رمز PIN)
+           </button>
+-
+-          {/* Quick Demo Button */}
+-          <button
+-            type="button"
+-            onClick={() => {
+-              setShowAdminLogin(true);
+-              setIsSettingPin(false);
+-              setPin('');
+-              setError('');
+-            }}
+-            disabled={loading || biometricStatus === 'scanning'}
+-            className="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black py-4 rounded-2xl flex items-center justify-center gap-2 active:scale-95 transition-all border border-emerald-500/20 shadow-lg"
+-          >
+-            <ShieldCheck className="w-5 h-5 text-amber-300" />
+-            الدخول التجريبي الفوري (مدير عام)
+-          </button>
+         </div>
+
+         {/* Informational tip for preview iframes */}
+@@ -270,7 +254,7 @@
+             تمنع قيود الأمان في بعض المتصفحات فتح نافذة Google داخل إطار المعاينة الجانبي.
+           </p>
+           <p className="text-gray-300">
+-            إذا لم تفُتح نافذة Google، انقر على <strong className="text-white">"فتح في تبويب مستقل"</strong> أعلاه، أو استخدم <strong className="text-white">"الدخول التجريبي الفوري"</strong> للدخول المباشر.
++            إذا لم تفُتح نافذة Google، انقر على <strong className="text-white">"فتح في تبويب مستقل"</strong> أعلاه للمتابعة.
+           </p>
+         </div>
+
+--- a/src/components/IPhoneFrame.tsx	2026-08-19 11:24:27.000000000 +0000
 +++ b/src/components/IPhoneFrame.tsx	2026-08-19 11:22:03.000000000 +0000
 @@ -110,20 +110,6 @@
    if (!enabled || deviceFrameMode === 'fullscreen') {
@@ -179,7 +220,7 @@
          {children}
        </div>
      );
---- a/src/components/DynamicIsland.tsx	2026-08-19 11:15:12.000000000 +0000
+--- a/src/components/DynamicIsland.tsx	2026-08-19 11:24:27.000000000 +0000
 +++ b/src/components/DynamicIsland.tsx	2026-08-19 11:22:18.000000000 +0000
 @@ -58,7 +58,7 @@
                <div className="flex items-center gap-1.5">
@@ -199,3 +240,28 @@
                      </span>
                      <button
                        onClick={(e) => {
+--- a/src/context/FirebaseContext.tsx	2026-08-19 11:24:27.000000000 +0000
++++ b/src/context/FirebaseContext.tsx	2026-08-19 12:43:54.000000000 +0000
+@@ -19,6 +19,9 @@
+ import { INITIAL_CATEGORIES, INITIAL_INVOICES, INITIAL_ASSETS } from '../data/initialData';
+ import { normalizeInvoiceList } from '../utils/formatters';
+
++// قائمة البريدات الإلكترونية المصرح لها فقط بالدخول عبر Google
++const ALLOWED_GOOGLE_EMAILS = ['johanmark811981@gmail.com'];
++
+ interface FirebaseContextType {
+   user: User | null;
+   loading: boolean;
+@@ -361,6 +364,12 @@
+       const res = await signInWithPopup(auth, googleProvider);
+       if (res?.user) {
+         const fUser = res.user;
++        // التحقق من أن البريد مصرح له بالدخول
++        const email = (fUser.email || '').toLowerCase();
++        if (!ALLOWED_GOOGLE_EMAILS.includes(email)) {
++          await auth.signOut();
++          throw new Error('هذا البريد الإلكتروني غير مصرح له بالدخول إلى النظام. تواصل مع مدير النظام لإضافة بريدك.');
++        }
+         const newUser: User = {
+           uid: fUser.uid,
+           name: fUser.displayName || fUser.email?.split('@')[0] || 'مستخدم جديد',
